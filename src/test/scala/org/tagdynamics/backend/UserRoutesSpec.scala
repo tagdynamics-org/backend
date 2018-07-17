@@ -1,7 +1,5 @@
 package org.tagdynamics.backend
 
-//#user-routes-spec
-//#test-top
 import akka.actor.ActorRef
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
@@ -9,10 +7,8 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ Matchers, WordSpec }
 
-//#set-up
 class UserRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
     with UserRoutes {
-  //#test-top
 
   // Here we need to implement all the abstract members of UserRoutes.
   // We use the real UserRegistryActor to test it while we hit the Routes, 
@@ -22,9 +18,6 @@ class UserRoutesSpec extends WordSpec with Matchers with ScalaFutures with Scala
 
   lazy val routes = userRoutes
 
-  //#set-up
-
-  //#actual-test
   "UserRoutes" should {
     "return no users if no present (GET /users)" in {
       // note that there's no need for the host part in the uri:
@@ -40,9 +33,7 @@ class UserRoutesSpec extends WordSpec with Matchers with ScalaFutures with Scala
         entityAs[String] should ===("""{"users":[]}""")
       }
     }
-    //#actual-test
 
-    //#testing-post
     "be able to add users (POST /users)" in {
       val user = User("Kapi", 42, "jp")
       val userEntity = Marshal(user).to[MessageEntity].futureValue // futureValue is from ScalaFutures
@@ -60,7 +51,6 @@ class UserRoutesSpec extends WordSpec with Matchers with ScalaFutures with Scala
         entityAs[String] should ===("""{"description":"User Kapi created."}""")
       }
     }
-    //#testing-post
 
     "be able to remove users (DELETE /users)" in {
       // user the RequestBuilding DSL provided by ScalatestRouteSpec:
@@ -76,11 +66,7 @@ class UserRoutesSpec extends WordSpec with Matchers with ScalaFutures with Scala
         entityAs[String] should ===("""{"description":"User Kapi deleted."}""")
       }
     }
-    //#actual-test
-  }
-  //#actual-test
 
-  //#set-up
+  }
+
 }
-//#set-up
-//#user-routes-spec
