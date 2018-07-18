@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tagdynamics-org/backend.svg?branch=master)](https://travis-ci.org/tagdynamics-org/backend)
+
 # backend
 Backend for serving tag analytics
 
