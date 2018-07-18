@@ -8,10 +8,9 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import org.tagdynamics.backend.loader.CountLoaders
+import org.tagdynamics.backend.revcounts.CountLoaders
 
 object Main extends UserRoutes {
-
 
   def getEnvironmentVariable(variable: String): String = {
     val res = sys.env.get(variable)
@@ -24,15 +23,14 @@ object Main extends UserRoutes {
   implicit val system: ActorSystem = ActorSystem("helloAkkaHttpServer")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  val userRegistryActor: ActorRef = system.actorOf(UserRegistryActor.props, "userRegistryActor")
+  override val userRegistryActor: ActorRef = system.actorOf(UserRegistryActor.props, "userRegistryActor")
 
   // from the UserRoutes trait
   lazy val routes: Route = userRoutes
 
   def main(args: Array[String]): Unit = {
     val dataDir: String = getEnvironmentVariable("DATA_DIRECTORY")
-    val liveTotalCounts = CountLoaders.loadFromDirectory(new File(dataDir).toURI)
-    println(s" * Loaded total elementState counts ${liveTotalCounts.keySet.size}")
+    val tagStats = CountLoaders.loadFromDirectory(new File(dataDir).toURI)
 
     Http().bindAndHandle(routes, "localhost", 8080)
 

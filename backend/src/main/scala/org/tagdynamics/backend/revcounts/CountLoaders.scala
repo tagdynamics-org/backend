@@ -1,4 +1,4 @@
-package org.tagdynamics.backend.loader
+package org.tagdynamics.backend.revcounts
 
 import java.net.URI
 
@@ -46,7 +46,7 @@ object CountLoaders extends JSONCustomProtocols {
 
 
   /** Load total+live count files from a directory */
-  def loadFromDirectory(dataDirectory: URI): Map[ElementState, TagStats] = {
+  def loadFromDirectory(dataDirectory: URI): Seq[(ElementState, TagStats)] = {
 
     val liveCounts: Map[ElementState, (Rank, Count)] = loadCountFile(dataDirectory.resolve("live-revcounts.jsonl"))
     val totalCounts: Map[ElementState, (Rank, Count)] = loadCountFile(dataDirectory.resolve("total-revcounts.jsonl"))
@@ -67,8 +67,7 @@ object CountLoaders extends JSONCustomProtocols {
       })
     )
 
-    // TODO: sorting is not here needed. We should pre-sort tables for various sort requests
-    unsorted.toSeq.sortBy(c => -c._2.total.counts).toMap
+    unsorted.toSeq
   }
 
 }

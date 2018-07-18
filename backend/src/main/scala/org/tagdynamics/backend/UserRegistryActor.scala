@@ -1,6 +1,6 @@
 package org.tagdynamics.backend
 
-import akka.actor.{ Actor, ActorLogging, Props }
+import akka.actor.{Actor, ActorLogging, Props}
 
 final case class User(name: String, age: Int, countryOfResidence: String)
 final case class Users(users: Seq[User])
