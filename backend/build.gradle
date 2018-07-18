@@ -17,6 +17,7 @@ ext {
 }
 
 dependencies {
+  compile project(":common")
 
   compile "org.scala-lang:scala-library:${scalaVer}.4"
   compile "io.spray:spray-json_${scalaVer}:1.3.4"
@@ -39,4 +40,4 @@ dependencies {
   testRuntime 'org.pegdown:pegdown:1.4.2'
 }
 
-mainClassName = "org.tagdynamics.backend.QuickstartServer"
+mainClassName = "org.tagdynamics.backend.Main"
