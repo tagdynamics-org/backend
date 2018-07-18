@@ -1,0 +1,4 @@
+include 'backend'
+include 'common'
+
+rootProject.name = 'backend'
