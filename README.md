@@ -1,7 +1,6 @@
 # backend
 Backend for serving tag analytics
 
-
 ## License
 
 The initial version of backend (see [this commit](TODO)) created using sbt and the 
