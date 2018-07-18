@@ -1,0 +1,7 @@
+language: scala
+scala:
+  - 2.12.2
+
+# see: https://github.com/travis-ci/travis-ci/issues/8667
+install:
+  - true
