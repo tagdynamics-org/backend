@@ -8,9 +8,10 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 
 trait JsonSupport extends SprayJsonSupport with JSONCustomProtocols {
 
-  implicit val jx1 = jsonFormat2(TotalCount)
-  implicit val jx2 = jsonFormat3(LiveCount)
-  implicit val jx3 = jsonFormat2(TagStats)
-  implicit val jx4 = jsonFormat3(ListResponse)
+  implicit val jx1 = jsonFormat3(SourceMetadata)
+  implicit val jx2 = jsonFormat2(TotalCount)
+  implicit val jx3 = jsonFormat3(LiveCount)
+  implicit val jx4 = jsonFormat2(TagStats)
+  implicit val jx5 = jsonFormat3(ListResponse)
 
 }

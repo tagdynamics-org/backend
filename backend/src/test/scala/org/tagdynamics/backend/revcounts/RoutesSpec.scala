@@ -20,7 +20,7 @@ class RoutesSpec extends WordSpec with RevisionCountRoutes with Matchers with Sc
   }
 
   val tagStats = TestData.loadedData
-  val revCountActor: ActorRef = system.actorOf(Props(new RevisionCountRegistryActor(tagStats, "data_version")), "revCountActor")
+  val revCountActor: ActorRef = system.actorOf(Props(new RevisionCountRegistryActor(tagStats, TestData.metadata)), "revCountActor")
 
   val routes: Route  = revisionCountRoutes(revCountActor)
 

@@ -1,6 +1,13 @@
 package org.tagdynamics.backend
 
-object Rank {
+object Utils {
+
+  def getEnvironmentVariable(variable: String): String = {
+    val res = sys.env.get(variable)
+
+    if (res.isDefined) res.get
+    else throw new Exception(s"environment variable $variable not set.")
+  }
 
   /**
    * Add rank to a sequence `x1, x2, ...` where `extract(x1), extract(x2), ...` is

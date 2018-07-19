@@ -3,12 +3,10 @@ package org.tagdynamics.backend
 import org.scalatest.{Matchers, WordSpec}
 import org.tagdynamics.aggregator.common.Visible
 import org.tagdynamics.backend.revcounts.RevisionCountRegistryActorMessages.ListResponse
-import org.tagdynamics.backend.revcounts.{LiveCount, TagStats, TotalCount}
+import org.tagdynamics.backend.revcounts.{LiveCount, TagStats, TestData, TotalCount}
 
 class JSONTests extends WordSpec with Matchers {
-
   "JSON serialization" should {
-
     "serialize/deserialize ListResponse object" in {
       object I extends JsonSupport {
         import spray.json._
@@ -24,7 +22,7 @@ class JSONTests extends WordSpec with Matchers {
       val example = ListResponse(
         entryList = List((v, ts)),
         totalEntries = 123,
-        dataSet = "exported 1.1.2018")
+        dataSet = TestData.metadata)
 
       I.toJson(example).length > 30 should be (true)
       val example2 = I.fromJson(I.toJson(example))

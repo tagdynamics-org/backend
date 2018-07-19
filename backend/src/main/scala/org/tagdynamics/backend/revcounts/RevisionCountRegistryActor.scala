@@ -6,15 +6,15 @@ import akka.http.scaladsl.server.Directives.{onSuccess, parameter}
 import akka.util.Timeout
 import akka.pattern.ask
 import akka.actor.{ActorRef, ActorSystem}
+
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.get
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.server.directives.PathDirectives.path
-
 import org.tagdynamics.aggregator.common.ElementState
-import org.tagdynamics.backend.JsonSupport
+import org.tagdynamics.backend.{JsonSupport, SourceMetadata}
 import org.tagdynamics.backend.revcounts.RevisionCountRegistryActorMessages.{ListRequest, ListResponse}
 import org.tagdynamics.backend.revcounts.SortHelper.SortSpec
 
@@ -26,14 +26,14 @@ object RevisionCountRegistryActorMessages {
 
   final case class ListResponse(entryList: Seq[(ElementState, TagStats)],
                                 totalEntries: Int,
-                                dataSet: String)
+                                dataSet: SourceMetadata)
 
   // TODO: Request data for a specific element state
 
 }
 
 class RevisionCountRegistryActor(tagStats: Seq[(ElementState, TagStats)],
-                                 dataSet: String) extends Actor with ActorLogging {
+                                 dataSet: SourceMetadata) extends Actor with ActorLogging {
 
   val allSorts: Map[SortSpec, Seq[(ElementState, TagStats)]] = SortHelper.sortByAll(tagStats)
   log.info(s" Init with data for ${tagStats.length} distinct element states.")

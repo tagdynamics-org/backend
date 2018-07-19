@@ -4,11 +4,18 @@ import java.net.URI
 
 import org.scalatest.{Matchers, WordSpec}
 import org.tagdynamics.aggregator.common.{ElementState, Visible}
+import org.tagdynamics.backend.SourceMetadata
 import org.tagdynamics.backend.revcounts.SortHelper.SortSpec
 
 object TestData {
   private val testDatadirectory: URI = getClass.getResource("/testdata/3-aggregates/").toURI
   val loadedData: Seq[(ElementState, TagStats)] = CountLoaders.loadFromDirectory(testDatadirectory)
+
+  val metadata = SourceMetadata(
+    downloaded = "2018.1.1 (UTC)",
+    md5 = "md5 checksum",
+    selectedTags = List("amenity", "barrier", "manmade")
+  )
 }
 
 class RevCountsSpec extends WordSpec with Matchers {

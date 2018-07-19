@@ -2,8 +2,10 @@ package org.tagdynamics.backend.revcounts
 
 import java.net.URI
 
-import org.tagdynamics.aggregator.common.{Counted, ElementState, JSONCustomProtocols, Utils}
-import org.tagdynamics.backend.Rank
+// import common so we can reference common.Util without colliding with backend's own Util:s
+import org.tagdynamics.aggregator.common
+import org.tagdynamics.aggregator.common.{Counted, ElementState, JSONCustomProtocols}
+import org.tagdynamics.backend.Utils
 
 //
 // Tag statistics assigned to an element state
@@ -30,12 +32,12 @@ object CountLoaders extends JSONCustomProtocols {
     println(s" Loading tag analytics data")
     println(s" * Loading count filename $filename")
     val counts: Seq[Counted[ElementState]] =
-      Utils.loadJSONL(filename, (line: String) => line.parseJson.convertTo[Counted[ElementState]])
+      common.Utils.loadJSONL(filename, (line: String) => line.parseJson.convertTo[Counted[ElementState]])
           .sortBy(x => -x.n)
     println(s"    - Loaded ${counts.length} tag counts. Adding rank ...")
 
     val countsWithRank: Seq[(Rank, Counted[ElementState])] =
-      Rank.addRank(counts, (x: Counted[ElementState]) => x.n)
+      Utils.addRank(counts, (x: Counted[ElementState]) => x.n)
 
     val result = countsWithRank
       .map{ case(rank, tagState) => (tagState.key, (tagState.n, rank))}
@@ -43,7 +45,6 @@ object CountLoaders extends JSONCustomProtocols {
     println("    - Done.")
     result
   }
-
 
   /** Load total+live count files from a directory */
   def loadFromDirectory(dataDirectory: URI): Seq[(ElementState, TagStats)] = {
