@@ -39,14 +39,16 @@ class RevisionCountRegistryActor(tagStats: Seq[(ElementState, TagStats)],
   log.info(s" Init with data for ${tagStats.length} distinct element states.")
 
   def receive: Receive = {
-    case ListRequest(firstIndex, n, sort) =>
+    case ListRequest(firstIndex, n, sortCriteria) =>
+      log.info(s" req for firstIndex=$firstIndex n=$n sortCriteria=$sortCriteria")
+      if (firstIndex < 0) throw new Exception("firstIndex should be >= 0")
       if (n > 1000) throw new Exception("Max n is 1000")
       if (n < 0) throw new Exception("n should be positive")
       if (n == 0) log.warning("Warning: query with n=0")
 
       val result = ListResponse(
-        entryList = allSorts(sort).slice(firstIndex, firstIndex + n),
-        totalEntries = tagStats.length,
+        entryList = allSorts(sortCriteria).slice(firstIndex, firstIndex + n),
+        totalEntries = allSorts(sortCriteria).length,
         dataSet = dataSet
       )
       sender() ! result
@@ -57,7 +59,7 @@ class RevisionCountRegistryActor(tagStats: Seq[(ElementState, TagStats)],
 
 trait RevisionCountRoutes extends JsonSupport {
 
-  implicit def system: ActorSystem // provided later
+  implicit def system: ActorSystem
 
   def revisionCountRoutes(revCountActor: ActorRef): Route = {
 
@@ -69,17 +71,15 @@ trait RevisionCountRoutes extends JsonSupport {
      * See
      *   - https://doc.akka.io/docs/akka-http/current/routing-dsl/directives/parameter-directives/parameters.html
      *   - local testing
-     *      curl -v -H "Origin: http://localhost:8081" 'http://localhost:8080/tag-states?sort-by=".."&first-index=12&n=200'
+     *      curl -v -H "Origin: http://localhost:8081" 'http://0.0.0.0:8080/tag-states?sorting=LiveCounts.Ascending&first-index=0&n=200'
      */
     val getSortedByTotal: Route = (get & path("tag-states")) {
-      parameter("sort-by", "first-index".as[Int], "n".as[Int]) {
-        (sortBy, firstIndex, n) => {
-          println("GET categorical-tags:", sortBy, firstIndex, n)
-
+      parameter("sorting", "first-index".as[Int], "n".as[Int]) {
+        (sorting, firstIndex, n) => {
           val query = ListRequest(
             firstIndex = firstIndex,
             n = n,
-            sort = (SortHelper.SortBy.TotalCounts,SortHelper.SortOrder.Ascending)
+            sort = SortHelper.parse(sorting).get // crash if sorting criteria is not recognized
           )
 
           val resultF = (revCountActor ? query).mapTo[ListResponse]

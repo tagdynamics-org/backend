@@ -8,7 +8,7 @@ object SortHelper {
     sealed trait Alternatives
     case object LiveCounts extends Alternatives // same as LiveRank (but in reverse order)
     case object TotalCounts extends Alternatives // same as TotalRank (but in reverse order)
-    case object PercentLive extends Alternatives
+    case object LivePercent extends Alternatives
   }
 
   case object SortOrder {
@@ -19,6 +19,16 @@ object SortHelper {
 
   type SortSpec = (SortBy.Alternatives, SortOrder.Alternatives)
 
+  val allSortCriteria: Seq[SortSpec] = for {
+    sortBy <- Seq(
+      SortBy.LiveCounts,
+      SortBy.TotalCounts,
+      SortBy.LivePercent)
+    sortOrder <- Seq(
+      SortOrder.Ascending,
+      SortOrder.Descending)
+  } yield (sortBy, sortOrder)
+
   // parse eg. "LiveCounts.Ascending"
   def parse(sortCriteria: String): Option[SortSpec] = {
     val split = sortCriteria.split('.')
@@ -27,7 +37,7 @@ object SortHelper {
       val sortByO = split(0) match {
         case "LiveCounts" => Some(SortBy.LiveCounts)
         case "TotalCounts" => Some(SortBy.TotalCounts)
-        case "PercentLive" => Some(SortBy.PercentLive)
+        case "LivePercent" => Some(SortBy.LivePercent)
         case _ => None
       }
       val sortOrderO = split(1) match {
@@ -57,7 +67,7 @@ object SortHelper {
 
     def f(t: TagStats): Option[Double] =
       sortBy match {
-        case SortBy.PercentLive => t.live.map(x => x.livePercent)
+        case SortBy.LivePercent => t.live.map(x => x.livePercent)
         case SortBy.TotalCounts => Some(t.total.counts)
         case SortBy.LiveCounts => t.live.map(x => x.counts)
       }
@@ -73,15 +83,6 @@ object SortHelper {
   }
 
   def sortByAll(inData: Seq[(ElementState, TagStats)]): Map[SortSpec, Seq[(ElementState, TagStats)]] =
-    (for {
-      sortBy <- Seq(
-        SortBy.LiveCounts,
-        SortBy.TotalCounts,
-        SortBy.PercentLive)
-      sortOrder <- Seq(
-        SortOrder.Ascending,
-        SortOrder.Descending)
-      s: SortSpec = (sortBy, sortOrder)
-    } yield (s, sort(inData, s))).toMap
+    (for { s <- allSortCriteria } yield (s, sort(inData, s))).toMap
 
 }

@@ -40,7 +40,7 @@ object CountLoaders extends JSONCustomProtocols {
       Utils.addRank(counts, (x: Counted[ElementState]) => x.n)
 
     val result = countsWithRank
-      .map{ case(rank, tagState) => (tagState.key, (tagState.n, rank))}
+      .map{ case(rank, tagState) => (tagState.key, (rank, tagState.n))}
       .toMap
     println("    - Done.")
     result
@@ -63,7 +63,7 @@ object CountLoaders extends JSONCustomProtocols {
           LiveCount(
             counts = liveCount,
             rank = liveRank,
-            livePercent = Math.round((100d * liveCount) / totalCount)
+            livePercent = 100f * liveCount / totalCount
           )
       })
     )

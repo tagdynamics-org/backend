@@ -16,20 +16,33 @@ object TestData {
     md5 = "md5 checksum",
     selectedTags = List("amenity", "barrier", "manmade")
   )
+
+  val statesLive: Int = TestData.loadedData.count(x => x._2.live.isDefined)
+  val statesTotal: Int = TestData.loadedData.length
 }
 
 class RevCountsSpec extends WordSpec with Matchers {
 
-  val statesLive: Int = TestData.loadedData.count(x => x._2.live.isDefined)
-  val statesTotal: Int = TestData.loadedData.length
-
   "Count loaders" should {
     "load test files" in {
       val testKey: ElementState = Visible(List("0:v3", "2:v4"))
-      val expectedStats = Some(TagStats(TotalCount(39,75),Some(LiveCount(25,19,64.0f))))
+      val expectedStats = Some(TagStats(TotalCount(75,39),Some(LiveCount(19,25,25.333334f))))
       TestData.loadedData.toMap.get(testKey) should be (expectedStats)
-      statesTotal should be (167)
-      statesLive should be (79)
+      TestData.statesTotal should be (167)
+      TestData.statesLive should be (79)
+    }
+
+    "livePercent:s should be in range 0..100%" in {
+      // livePercentages are only defined for ElementStates that have some elements currently live
+      val livePercentages: Seq[Float] = for {
+        (_, stats) <- TestData.loadedData
+        liveStats <- stats.live
+      } yield liveStats.livePercent
+
+      for (p <- livePercentages) {
+        (p >= 0) should be (true)
+        (p <= 100) should be (true)
+      }
     }
   }
 
@@ -54,39 +67,40 @@ class RevCountsSpec extends WordSpec with Matchers {
       xs.sliding(2).foreach(ys => {
         assert(f(ys.head) <= f(ys.last))
       })
+      assert(f(xs.head) < f(xs.last))
     }
 
     def isDec[A](xs: Seq[A], f: A => Double) = isInc(xs, (a: A) => -f(a))
 
     "satisfy properties for (LiveCounts, Ascending)" in {
       val res = allSorts(SortHelper.parse("LiveCounts.Ascending").get)
-      res.length should be (statesLive)
+      res.length should be (TestData.statesLive)
       isInc(res, (x: (ElementState, TagStats)) => x._2.live.get.counts)
       isDec(res, (x: (ElementState, TagStats)) => x._2.live.get.rank) // rank 1 = most entries
     }
 
     "satisfy properties for (LiveCounts, Descending)" in {
       val res = allSorts(SortHelper.parse("LiveCounts.Descending").get)
-      res.length should be (statesLive)
+      res.length should be (TestData.statesLive)
       isDec(res, (x: (ElementState, TagStats)) => x._2.live.get.counts)
       isInc(res, (x: (ElementState, TagStats)) => x._2.live.get.rank)
     }
 
     "satisfy properties for (PercentLive, Ascending)" in {
-      val res = allSorts(SortHelper.parse("PercentLive.Ascending").get)
-      res.length should be (statesLive)
+      val res = allSorts(SortHelper.parse("LivePercent.Ascending").get)
+      res.length should be (TestData.statesLive)
       isInc(res, (x: (ElementState, TagStats)) => x._2.live.get.livePercent)
     }
 
     "satisfy properties for (PercentLive, Descending)" in {
-      val res = allSorts(SortHelper.parse("PercentLive.Descending").get)
-      res.length should be (statesLive)
+      val res = allSorts(SortHelper.parse("LivePercent.Descending").get)
+      res.length should be (TestData.statesLive)
       isDec(res, (x: (ElementState, TagStats)) => x._2.live.get.livePercent)
     }
 
     "satisfy properties for (TotalCounts, Ascending)" in {
       val res = allSorts(SortHelper.parse("TotalCounts.Ascending").get)
-      res.length should be (statesTotal)
+      res.length should be (TestData.statesTotal)
       isInc(res, (x: (ElementState, TagStats)) => x._2.total.counts)
       isDec(res, (x: (ElementState, TagStats)) => x._2.total.rank)
     }
