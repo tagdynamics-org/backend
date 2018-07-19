@@ -1,16 +1,16 @@
 package org.tagdynamics.backend
 
-import org.tagdynamics.backend.UserRegistryActor.ActionPerformed
+import org.tagdynamics.aggregator.common.JSONCustomProtocols
+import org.tagdynamics.backend.revcounts.RevisionCountRegistryActorMessages.ListResponse
+import org.tagdynamics.backend.revcounts.{LiveCount, TagStats, TotalCount}
 
-//#json-support
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import spray.json.DefaultJsonProtocol
 
-trait JsonSupport extends SprayJsonSupport {
-  import DefaultJsonProtocol._
+trait JsonSupport extends SprayJsonSupport with JSONCustomProtocols {
 
-  implicit val userJsonFormat = jsonFormat3(User)
-  implicit val usersJsonFormat = jsonFormat1(Users)
+  implicit val jx1 = jsonFormat2(TotalCount)
+  implicit val jx2 = jsonFormat3(LiveCount)
+  implicit val jx3 = jsonFormat2(TagStats)
+  implicit val jx4 = jsonFormat3(ListResponse)
 
-  implicit val actionPerformedJsonFormat = jsonFormat1(ActionPerformed)
 }

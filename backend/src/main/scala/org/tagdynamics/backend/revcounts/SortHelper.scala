@@ -19,6 +19,33 @@ object SortHelper {
 
   type SortSpec = (SortBy.Alternatives, SortOrder.Alternatives)
 
+  // parse eg. "LiveCounts.Ascending"
+  def parse(sortCriteria: String): Option[SortSpec] = {
+    val split = sortCriteria.split('.')
+
+    if (split.length == 2) {
+      val sortByO = split(0) match {
+        case "LiveCounts" => Some(SortBy.LiveCounts)
+        case "TotalCounts" => Some(SortBy.TotalCounts)
+        case "PercentLive" => Some(SortBy.PercentLive)
+        case _ => None
+      }
+      val sortOrderO = split(1) match {
+        case "Ascending" => Some(SortOrder.Ascending)
+        case "Descending" => Some(SortOrder.Descending)
+        case _ => None
+      }
+      val pair = (sortByO, sortOrderO)
+
+      pair match {
+        case (Some(sortBy), Some(sortOrder)) => Some((sortBy, sortOrder))
+        case _ => None
+      }
+    } else {
+      None
+    }
+  }
+
   def sort(inData: Seq[(ElementState, TagStats)], s: SortSpec): Seq[(ElementState, TagStats)] = {
     val sortBy: SortBy.Alternatives = s._1
     val sortOrder: SortOrder.Alternatives = s._2
@@ -53,8 +80,7 @@ object SortHelper {
         SortBy.PercentLive)
       sortOrder <- Seq(
         SortOrder.Ascending,
-        SortOrder.Descending,
-      )
+        SortOrder.Descending)
       s: SortSpec = (sortBy, sortOrder)
     } yield (s, sort(inData, s))).toMap
 

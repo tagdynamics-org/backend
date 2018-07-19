@@ -4,13 +4,13 @@ import java.io.File
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import org.tagdynamics.backend.revcounts.CountLoaders
+import org.tagdynamics.backend.revcounts.{CountLoaders, RevisionCountRegistryActor, RevisionCountRoutes}
 
-object Main extends UserRoutes {
+object Main extends App with RevisionCountRoutes {
 
   def getEnvironmentVariable(variable: String): String = {
     val res = sys.env.get(variable)
@@ -20,22 +20,20 @@ object Main extends UserRoutes {
   }
 
   // set up ActorSystem and other dependencies here
-  implicit val system: ActorSystem = ActorSystem("helloAkkaHttpServer")
+  implicit val system: ActorSystem = ActorSystem("tag-dynamics-backend")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  override val userRegistryActor: ActorRef = system.actorOf(UserRegistryActor.props, "userRegistryActor")
+  val dataDir: String = getEnvironmentVariable("DATA_DIRECTORY")
+  val tagStats = CountLoaders.loadFromDirectory(new File(dataDir).toURI)
 
-  // from the UserRoutes trait
-  lazy val routes: Route = userRoutes
+  val revCountActor: ActorRef = system.actorOf(Props(new RevisionCountRegistryActor(tagStats, "dataset_version")), "revCountActor")
 
-  def main(args: Array[String]): Unit = {
-    val dataDir: String = getEnvironmentVariable("DATA_DIRECTORY")
-    val tagStats = CountLoaders.loadFromDirectory(new File(dataDir).toURI)
+  val routes: Route  = revisionCountRoutes(revCountActor)
 
-    Http().bindAndHandle(routes, "localhost", 8080)
+  Http().bindAndHandle(routes, "localhost", 8080)
 
-    println(s"Server online at http://localhost:8080/")
+  println(s"Server online at http://localhost:8080/")
 
-    Await.result(system.whenTerminated, Duration.Inf)
-  }
+  Await.result(system.whenTerminated, Duration.Inf)
+
 }
