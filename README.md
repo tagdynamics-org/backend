@@ -3,6 +3,19 @@
 # backend
 Backend for serving tag analytics
 
+## Cloning and running tests
+
+```bash
+git clone --recurse-submodules https://github.com/tagdynamics-org/backend.git
+cd backend
+gradle wrapper
+./gradlew test
+```
+
+## Running
+
+See the [launch.sh](./launch.sh) script.
+
 ## License
 
 The initial version of backend (see [this commit](TODO)) created using sbt and the 
