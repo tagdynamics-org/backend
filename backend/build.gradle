@@ -1,7 +1,19 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.github.jengelman.gradle.plugins:shadow:2.0.4"
+  }
+}
+
 plugins {
   id "com.github.maiflai.scalatest" version "0.22"
 }
 
+apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: 'scala'
 apply plugin: 'application'
 
@@ -41,3 +53,10 @@ dependencies {
 }
 
 mainClassName = "org.tagdynamics.backend.Main"
+
+shadowJar {
+  // See:
+  //  - https://github.com/akka/akka/issues/24248
+  //  - http://www.sureshpw.com/2015/10/building-akka-bundle-with-all.html
+  mergeServiceFiles('reference.conf')
+}
