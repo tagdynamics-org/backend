@@ -1,6 +1,7 @@
 # https://hub.docker.com/r/hseeberger/scala-sbt/
 FROM hseeberger/scala-sbt:8u171_2.12.6_1.1.6
 
+RUN apt-get update 
 RUN apt-get -y install gradle
 
 WORKDIR /root
