@@ -18,9 +18,13 @@ See the [launch.sh](./launch.sh) script.
 
 ## License
 
-The initial version of backend (see [this commit](TODO)) created using sbt and the 
-[Akka HTTP quickstart in Scala](https://github.com/akka/akka-http-quickstart-scala.g8) template by
-running `sbt -Dsbt.version=0.13.15 new https://github.com/akka/akka-http-quickstart-scala.g8`. Template license [listed as](https://github.com/akka/akka-http-quickstart-scala.g8/blob/10.1.x/README.md#template-license):
+Copyright 2018 Matias Dahl except as otherwise noted (see in particular the note below).
+
+An initial version of this work was created using sbt and the
+[Akka HTTP quickstart template](https://github.com/akka/akka-http-quickstart-scala.g8) by
+running `sbt -Dsbt.version=0.13.15 new https://github.com/akka/akka-http-quickstart-scala.g8`.
+See [this commit](https://github.com/tagdynamics-org/backend/commit/6bb8726c6688876ed04b2e639379dd9783453d81).
+Template license [listed as](https://github.com/akka/akka-http-quickstart-scala.g8/blob/10.1.x/README.md#template-license):
 
 ```
 Written in 2017 by Lightbend, Inc.
