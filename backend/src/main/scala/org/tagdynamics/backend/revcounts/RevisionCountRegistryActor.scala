@@ -18,6 +18,8 @@ import org.tagdynamics.backend.{JsonSupport, SourceMetadata}
 import org.tagdynamics.backend.revcounts.RevisionCountRegistryActorMessages.{ListRequest, ListResponse}
 import org.tagdynamics.backend.revcounts.SortHelper.SortSpec
 
+import scala.concurrent.Future
+
 object RevisionCountRegistryActorMessages {
 
   final case class ListRequest(firstIndex: Int,
@@ -82,7 +84,7 @@ trait RevisionCountRoutes extends JsonSupport {
             sort = SortHelper.parse(sorting).get // crash if sorting criteria is not recognized
           )
 
-          val resultF = (revCountActor ? query).mapTo[ListResponse]
+          val resultF: Future[ListResponse] = (revCountActor ? query).mapTo[ListResponse]
           onSuccess(resultF) {
             result: ListResponse => complete((OK, result))
           }
