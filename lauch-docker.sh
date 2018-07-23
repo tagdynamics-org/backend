@@ -11,6 +11,9 @@ export DATA_DIR=`pwd`/backend/src/test/resources/testdata/3-aggregates/
 sudo docker run --rm -it \
   -p $PORT_EXPOSED:$PORT_INSIDE_DOCKER \
   -v $DATA_DIR:/data/ \
+  -e CORS_ALLOWED_ORIGINS="*" \
+  -e CORS_ALLOW_GENERIC_HTTP_REQUESTS=false \
+  -e CORS_ALLOW_CREDENTIALS=false \
   -e DATA_DIRECTORY=/data/ \
   -e OSM_SOURCE_DOWNLOADED="2018.5.31" \
   -e OSM_SOURCE_MD5="1234fffffaabbccdd11aaa1111111123" \
