@@ -31,8 +31,9 @@ class TransitionRegistryActor(transitionStats: Map[ElementState, Seq[ToFromStats
 
   def receive: Receive = {
     case TransitionsMessages.Request(es: ElementState) =>
-      log.info(s" req for firstIndex = $es")
-      // TODO: will crash if key is not found
+      log.info(s" req transition data for: $es")
+
+      // Note: this will crash if key is not found, but this is tested earlier
       val result = TransitionsMessages.Response(transitionStats(es), dataSet)
       sender() ! result
 

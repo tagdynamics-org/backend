@@ -49,7 +49,7 @@ object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
 
   // transition routes
   val transitionRoutes: Route = {
-    val transitions = TransitionLoader.load(dataURI.resolve("/transition-counts.jsonl"), tagStats.toMap)
+    val transitions = TransitionLoader.load(dataURI.resolve("transition-counts.jsonl"), tagStats.toMap)
     val transitionActor: ActorRef = system.actorOf(Props(new TransitionRegistryActor(transitions, sourceMetadata)), "transitionActor")
     transitionRoutes(transitionActor, sourceMetadata.selectedTags)
   }
