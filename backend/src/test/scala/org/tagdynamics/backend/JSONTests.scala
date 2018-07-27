@@ -3,7 +3,7 @@ package org.tagdynamics.backend
 import org.scalatest.{Matchers, WordSpec}
 import org.tagdynamics.aggregator.common.Visible
 import org.tagdynamics.backend.revcounts.RevisionCountRegistryActorMessages.ListResponse
-import org.tagdynamics.backend.revcounts.{LiveCount, TagStats, TestData, TotalCount}
+import org.tagdynamics.backend.revcounts.{LiveCount, TagStats, TotalCount}
 
 class JSONTests extends WordSpec with Matchers {
   "JSON serialization" should {

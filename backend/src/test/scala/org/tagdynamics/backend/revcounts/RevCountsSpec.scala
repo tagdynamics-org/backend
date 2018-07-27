@@ -1,25 +1,9 @@
 package org.tagdynamics.backend.revcounts
 
-import java.net.URI
-
 import org.scalatest.{Matchers, WordSpec}
 import org.tagdynamics.aggregator.common.{ElementState, Visible}
-import org.tagdynamics.backend.SourceMetadata
+import org.tagdynamics.backend.TestData
 import org.tagdynamics.backend.revcounts.SortHelper.SortSpec
-
-object TestData {
-  private val testDatadirectory: URI = getClass.getResource("/testdata/3-aggregates/").toURI
-  val loadedData: Seq[(ElementState, TagStats)] = CountLoaders.loadFromDirectory(testDatadirectory)
-
-  val metadata = SourceMetadata(
-    downloaded = "2018.1.1 (UTC)",
-    md5 = "md5 checksum",
-    selectedTags = List("amenity", "barrier", "manmade")
-  )
-
-  val statesLive: Int = TestData.loadedData.count(x => x._2.live.isDefined)
-  val statesTotal: Int = TestData.loadedData.length
-}
 
 class RevCountsSpec extends WordSpec with Matchers {
 
@@ -27,7 +11,7 @@ class RevCountsSpec extends WordSpec with Matchers {
     "load test files" in {
       val testKey: ElementState = Visible(List("0:v3", "2:v4"))
       val expectedStats = Some(TagStats(TotalCount(75,39),Some(LiveCount(19,25,25.333334f))))
-      TestData.loadedData.toMap.get(testKey) should be (expectedStats)
+      TestData.liveTotalRevcountData.toMap.get(testKey) should be (expectedStats)
       TestData.statesTotal should be (167)
       TestData.statesLive should be (79)
     }
@@ -35,7 +19,7 @@ class RevCountsSpec extends WordSpec with Matchers {
     "livePercent:s should be in range 0..100%" in {
       // livePercentages are only defined for ElementStates that have some elements currently live
       val livePercentages: Seq[Float] = for {
-        (_, stats) <- TestData.loadedData
+        (_, stats) <- TestData.liveTotalRevcountData
         liveStats <- stats.live
       } yield liveStats.livePercent
 
@@ -59,7 +43,7 @@ class RevCountsSpec extends WordSpec with Matchers {
     }
   }
 
-  val allSorts: Map[SortSpec, Seq[(ElementState, TagStats)]] = SortHelper.sortByAll(TestData.loadedData)
+  val allSorts: Map[SortSpec, Seq[(ElementState, TagStats)]] = SortHelper.sortByAll(TestData.liveTotalRevcountData)
 
   "All pre-sorted revcount lists" should {
 

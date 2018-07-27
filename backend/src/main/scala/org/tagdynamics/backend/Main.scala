@@ -1,25 +1,28 @@
 package org.tagdynamics.backend
 
 import java.io.File
+import java.net.URI
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.Logging
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.{HttpOrigin, HttpOriginRange}
+import akka.http.scaladsl.model.headers.HttpOrigin
 import akka.http.scaladsl.model.headers.HttpOriginRange
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import org.tagdynamics.backend.revcounts.{CountLoaders, RevisionCountRegistryActor, RevisionCountRoutes}
+import org.tagdynamics.backend.revcounts.{CountLoaders, RevisionCountRegistryActor, RevisionCountRoutes, TagStats}
 import org.tagdynamics.backend.status.StatusRoute
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
+import org.tagdynamics.aggregator.common.ElementState
+import org.tagdynamics.backend.transitions.{TransitionCountRoutes, TransitionLoader, TransitionRegistryActor}
 
 case class SourceMetadata(downloaded: String, md5: String, selectedTags: Seq[String])
 
-object Main extends App with RevisionCountRoutes {
+object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
 
   // set up ActorSystem and other dependencies here
   implicit val system: ActorSystem = ActorSystem("tag-dynamics-backend")
@@ -40,8 +43,16 @@ object Main extends App with RevisionCountRoutes {
   log.info(s"metadata for input OSM data: $sourceMetadata")
   log.info(s"metadata number of extracted tags = ${sourceMetadata.selectedTags.length}")
 
-  val tagStats = CountLoaders.loadFromDirectory(new File(dataDir).toURI)
+  val dataURI: URI = new File(dataDir).toURI
+  val tagStats: Seq[(ElementState, TagStats)] = CountLoaders.loadFromDirectory(dataURI)
   val revCountActor: ActorRef = system.actorOf(Props(new RevisionCountRegistryActor(tagStats, sourceMetadata)), "revCountActor")
+
+  // transition routes
+  val transitionRoutes: Route = {
+    val transitions = TransitionLoader.load(dataURI.resolve("/transition-counts.jsonl"), tagStats.toMap)
+    val transitionActor: ActorRef = system.actorOf(Props(new TransitionRegistryActor(transitions, sourceMetadata)), "transitionActor")
+    transitionRoutes(transitionActor, sourceMetadata.selectedTags)
+  }
 
   // CORS settings, see
   //  - https://github.com/lomigmegard/akka-http-cors
@@ -64,7 +75,7 @@ object Main extends App with RevisionCountRoutes {
   }
 
   val routes: Route = cors(corsSettings) {
-    revisionCountRoutes(revCountActor) ~ StatusRoute.route
+    revisionCountRoutes(revCountActor) ~ StatusRoute.route ~ transitionRoutes
   }
 
   val interface = Utils.getEnvironmentVariable("HTTP_INTERFACE_NAME")
