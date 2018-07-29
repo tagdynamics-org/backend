@@ -51,7 +51,7 @@ object TransitionLoader extends JSONCustomProtocols {
 
     def tableFor(x: ElementState): Seq[ToFromStats] = {
       val statesWithTransitionsToFromX: Seq[ElementState] =
-        fromCounts.getOrElse(x, Map()).keySet.toSeq ++ toCounts.getOrElse(x, Map()).keySet.toSeq
+        (fromCounts.getOrElse(x, Map()).keySet ++ toCounts.getOrElse(x, Map()).keySet).toSeq
 
       val fromXCounts: Map[ElementState, Int] = fromCounts.getOrElse(x, Map())
       val toXCounts: Map[ElementState, Int] = toCounts.getOrElse(x, Map())
