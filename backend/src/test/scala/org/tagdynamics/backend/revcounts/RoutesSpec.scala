@@ -27,7 +27,8 @@ class RoutesSpec extends WordSpec with RevisionCountRoutes with Matchers with Sc
 
   "RevisionCount: tag-states route" should {
     "successfully return JSON with OK status code on valid request" in {
-      val request = HttpRequest(uri = "/tag-states?sorting=LivePercent.Ascending&first-index=0&n=10")
+      // %5B%5D = []
+      val request = HttpRequest(uri = "/tag-states?sorting=LivePercent.Ascending&first-index=0&n=10&search-tags=%5B%5D")
 
       request ~> routes ~> check {
         status should ===(StatusCodes.OK)

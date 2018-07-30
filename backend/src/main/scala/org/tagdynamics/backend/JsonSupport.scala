@@ -8,7 +8,6 @@ import org.tagdynamics.backend.status.StatusResponse
 import org.tagdynamics.backend.transitions.{ToFromStats, TransitionsMessages}
 
 trait JsonSupport extends SprayJsonSupport with JSONCustomProtocols {
-
   implicit val jx1 = jsonFormat3(SourceMetadata)
   implicit val jx2 = jsonFormat2(TotalCount)
   implicit val jx3 = jsonFormat3(LiveCount)
