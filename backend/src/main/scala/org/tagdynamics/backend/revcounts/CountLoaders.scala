@@ -2,6 +2,9 @@ package org.tagdynamics.backend.revcounts
 
 import java.net.URI
 
+import org.tagdynamics.aggregator.common.DeltasByDay
+import org.tagdynamics.backend.AggregatedDataSources
+
 // import common so we can reference common.Util without colliding with backend's own Util:s
 import org.tagdynamics.aggregator.common
 import org.tagdynamics.aggregator.common.{Counted, ElementState, JSONCustomProtocols}
@@ -25,19 +28,9 @@ object CountLoaders extends JSONCustomProtocols {
   type Rank = Int
   type Count = Int
 
-  /** Load a JSONL file with `Counted[ElementState]` lines and add rank */
-  private def loadCountFile(filename: URI): Map[ElementState, (Rank, Count)] = {
-    import spray.json._
-
-    println(s" Loading tag analytics data")
-    println(s" * Loading count filename $filename")
-    val counts: Seq[Counted[ElementState]] =
-      common.Utils.loadJSONL(filename, (line: String) => line.parseJson.convertTo[Counted[ElementState]])
-          .sortBy(x => -x.n)
-    println(s"    - Loaded ${counts.length} tag counts. Adding rank ...")
-
+  def addRank(xs: Seq[Counted[ElementState]]): Map[ElementState, (Rank, Count)] = {
     val countsWithRank: Seq[(Rank, Counted[ElementState])] =
-      Utils.addRank(counts, (x: Counted[ElementState]) => x.n)
+      Utils.addRank(xs.sortBy(x => -x.n), (x: Counted[ElementState]) => x.n)
 
     val result = countsWithRank
       .map{ case(rank, tagState) => (tagState.key, (rank, tagState.n))}
@@ -46,11 +39,10 @@ object CountLoaders extends JSONCustomProtocols {
     result
   }
 
-  /** Load total+live count files from a directory */
-  def loadFromDirectory(dataDirectory: URI): Seq[(ElementState, TagStats)] = {
+  def computeStats(data: AggregatedDataSources): Seq[(ElementState, TagStats)] = {
 
-    val liveCounts: Map[ElementState, (Rank, Count)] = loadCountFile(dataDirectory.resolve("live-revcounts.jsonl"))
-    val totalCounts: Map[ElementState, (Rank, Count)] = loadCountFile(dataDirectory.resolve("total-revcounts.jsonl"))
+    val liveCounts: Map[ElementState, (Rank, Count)] = addRank(data.liveCounts)
+    val totalCounts: Map[ElementState, (Rank, Count)] = addRank(data.totalCounts)
 
     val unsorted: Iterable[(ElementState, TagStats)] =
     for {

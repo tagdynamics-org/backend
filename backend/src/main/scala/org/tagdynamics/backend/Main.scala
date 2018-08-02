@@ -1,6 +1,5 @@
 package org.tagdynamics.backend
 
-import java.io.File
 import java.net.URI
 
 import scala.concurrent.Await
@@ -30,10 +29,6 @@ object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
 
   val log = Logging.getLogger(system, this)
 
-  // directory with aggregated data
-  val dataDir: String = Utils.getEnvironmentVariable("DATA_DIRECTORY")
-  log.info(s"Directory with aggregated data $dataDir")
-
   // OSM source metadata
   val sourceMetadata = SourceMetadata(
     downloaded = Utils.getEnvironmentVariable("OSM_SOURCE_DOWNLOADED"),
@@ -43,13 +38,16 @@ object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
   log.info(s"metadata for input OSM data: $sourceMetadata")
   log.info(s"metadata number of extracted tags = ${sourceMetadata.selectedTags.length}")
 
-  val dataURI: URI = new File(dataDir).toURI
-  val tagStats: Seq[(ElementState, TagStats)] = CountLoaders.loadFromDirectory(dataURI)
+  // directory with aggregated data
+  val dataDir: String = Utils.getEnvironmentVariable("DATA_DIRECTORY")
+  log.info(s"Directory with aggregated data $dataDir")
+  val data = new AggregatedDataSources(new URI(s"file://$dataDir"))
+  val tagStats: Seq[(ElementState, TagStats)] = CountLoaders.computeStats(data)
   val revCountActor: ActorRef = system.actorOf(Props(new RevisionCountRegistryActor(tagStats, sourceMetadata)), "revCountActor")
 
   // transition routes
   val transitionRoutes: Route = {
-    val transitions = TransitionLoader.load(dataURI.resolve("transition-counts.jsonl"), tagStats.toMap)
+    val transitions = TransitionLoader.process(data.transitionCounts, tagStats.toMap)
     val transitionActor: ActorRef = system.actorOf(Props(new TransitionRegistryActor(transitions, sourceMetadata)), "transitionActor")
     transitionRoutes(transitionActor, sourceMetadata.selectedTags)
   }

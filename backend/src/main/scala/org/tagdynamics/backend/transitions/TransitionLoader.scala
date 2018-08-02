@@ -69,8 +69,4 @@ object TransitionLoader extends JSONCustomProtocols {
     }
     toFromStates.map(x => (x, tableFor(x))).toMap
   }
-
-  def load(filename: URI, statsMap: Map[ElementState, TagStats]): Map[ElementState, Seq[ToFromStats]] = {
-    process(load(filename), statsMap)
-  }
 }
