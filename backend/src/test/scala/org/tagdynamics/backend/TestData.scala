@@ -2,9 +2,8 @@ package org.tagdynamics.backend
 
 import java.net.URI
 
-import org.tagdynamics.aggregator.common.{Counted, ElementState, Transition}
+import org.tagdynamics.aggregator.common.{Counted, DeltasByDay, ElementState, Transition}
 import org.tagdynamics.backend.revcounts.{CountLoaders, TagStats}
-import org.tagdynamics.backend.transitions.TransitionLoader
 
 object TestData {
   val data = {
@@ -25,4 +24,7 @@ object TestData {
 
   val loadedTransitionData: Seq[Counted[Transition[ElementState]]] = data.transitionCounts
   val transitionsTotal: Int = loadedTransitionData.length
+
+  val deltaCounts: Seq[DeltasByDay[ElementState]] = data.deltaCounts
+
 }

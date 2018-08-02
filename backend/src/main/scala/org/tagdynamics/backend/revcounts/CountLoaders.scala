@@ -2,7 +2,7 @@ package org.tagdynamics.backend.revcounts
 
 import java.net.URI
 
-import org.tagdynamics.aggregator.common.DeltasByDay
+import org.tagdynamics.aggregator.common.{DayStamp, DeltasByDay}
 import org.tagdynamics.backend.AggregatedDataSources
 
 // import common so we can reference common.Util without colliding with backend's own Util:s
@@ -21,7 +21,7 @@ import org.tagdynamics.backend.Utils
 //
 case class TotalCount(counts: Int, rank: Int)
 case class LiveCount(counts: Int, rank: Int, livePercent: Float)
-case class TagStats(total: TotalCount, live: Option[LiveCount])
+case class TagStats(total: TotalCount, live: Option[LiveCount], firstEntry: DayStamp, lastEntry: DayStamp)
 
 object CountLoaders extends JSONCustomProtocols {
 
@@ -44,6 +44,12 @@ object CountLoaders extends JSONCustomProtocols {
     val liveCounts: Map[ElementState, (Rank, Count)] = addRank(data.liveCounts)
     val totalCounts: Map[ElementState, (Rank, Count)] = addRank(data.totalCounts)
 
+    println("Computing minMap ..")
+    val firstEntry: Map[ElementState, DayStamp] = data.deltaCounts.map(x => (x.key, DayStamp.min(x.deltas.keySet.toSeq))).toMap
+    println("Computing maxMap ..")
+    val lastEntry: Map[ElementState, DayStamp] = data.deltaCounts.map(x => (x.key, DayStamp.max(x.deltas.keySet.toSeq))).toMap
+    println("Creating statistics ..")
+
     val unsorted: Iterable[(ElementState, TagStats)] =
     for {
       (es, (totalRank, totalCount)) <- totalCounts
@@ -57,8 +63,10 @@ object CountLoaders extends JSONCustomProtocols {
             rank = liveRank,
             livePercent = 100f * liveCount / totalCount
           )
-      })
-    )
+      },
+      firstEntry = firstEntry(es),
+      lastEntry = lastEntry(es)
+    ))
 
     unsorted.toSeq
   }

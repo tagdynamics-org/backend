@@ -1,7 +1,7 @@
 package org.tagdynamics.backend.revcounts
 
 import org.scalatest.{Matchers, WordSpec}
-import org.tagdynamics.aggregator.common.{ElementState, Visible}
+import org.tagdynamics.aggregator.common.{DayStamp, ElementState, Visible}
 import org.tagdynamics.backend.TestData
 import org.tagdynamics.backend.revcounts.SortHelper.SortSpec
 
@@ -10,7 +10,12 @@ class RevCountsSpec extends WordSpec with Matchers {
   "Count loaders" should {
     "load test files" in {
       val testKey: ElementState = Visible(List("0:v3", "2:v4"))
-      val expectedStats = Some(TagStats(TotalCount(75,39),Some(LiveCount(19,25,25.333334f))))
+      val expectedStats = Some(TagStats(
+        TotalCount(75,39),
+        Some(LiveCount(19,25,25.333334f)),
+        DayStamp.from("100402"),
+        DayStamp.from("150316")
+      ))
       TestData.liveTotalRevcountData.toMap.get(testKey) should be (expectedStats)
       TestData.statesTotal should be (167)
       TestData.statesLive should be (79)
@@ -95,5 +100,4 @@ class RevCountsSpec extends WordSpec with Matchers {
       isInc(res, (x: (ElementState, TagStats)) => x._2.total.rank)
     }
   }
-
 }
