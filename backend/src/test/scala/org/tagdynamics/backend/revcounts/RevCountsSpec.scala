@@ -99,5 +99,29 @@ class RevCountsSpec extends WordSpec with Matchers {
       isDec(res, (x: (ElementState, TagStats)) => x._2.total.counts)
       isInc(res, (x: (ElementState, TagStats)) => x._2.total.rank)
     }
+
+    "satisfy properties for (FirstEdit, Ascending)" in {
+      val res = allSorts(SortHelper.parse("FirstEdit.Ascending").get)
+      res.length should be (TestData.statesTotal)
+      isInc(res, (x: (ElementState, TagStats)) => x._2.firstEdit.yymmdd)
+    }
+
+    "satisfy properties for (FirstEdit, Descending)" in {
+      val res = allSorts(SortHelper.parse("FirstEdit.Descending").get)
+      res.length should be (TestData.statesTotal)
+      isDec(res, (x: (ElementState, TagStats)) => x._2.firstEdit.yymmdd)
+    }
+
+    "satisfy properties for (LastEdit, Ascending)" in {
+      val res = allSorts(SortHelper.parse("LastEdit.Ascending").get)
+      res.length should be (TestData.statesTotal)
+      isInc(res, (x: (ElementState, TagStats)) => x._2.lastEdit.yymmdd)
+    }
+
+    "satisfy properties for (LastEdit, Descending)" in {
+      val res = allSorts(SortHelper.parse("LastEdit.Descending").get)
+      res.length should be (TestData.statesTotal)
+      isDec(res, (x: (ElementState, TagStats)) => x._2.lastEdit.yymmdd)
+    }
   }
 }

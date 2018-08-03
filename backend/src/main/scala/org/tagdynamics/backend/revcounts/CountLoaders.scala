@@ -17,11 +17,10 @@ import org.tagdynamics.backend.Utils
 // TODO: add:
 //    - out/in-flux
 //    - growth of live entries (for 1/3/6/12 months)
-//    - date of first/last entry
 //
 case class TotalCount(counts: Int, rank: Int)
 case class LiveCount(counts: Int, rank: Int, livePercent: Float)
-case class TagStats(total: TotalCount, live: Option[LiveCount], firstEntry: DayStamp, lastEntry: DayStamp)
+case class TagStats(total: TotalCount, live: Option[LiveCount], firstEdit: DayStamp, lastEdit: DayStamp)
 
 object CountLoaders extends JSONCustomProtocols {
 
@@ -64,8 +63,8 @@ object CountLoaders extends JSONCustomProtocols {
             livePercent = 100f * liveCount / totalCount
           )
       },
-      firstEntry = firstEntry(es),
-      lastEntry = lastEntry(es)
+      firstEdit = firstEntry(es),
+      lastEdit = lastEntry(es)
     ))
 
     unsorted.toSeq

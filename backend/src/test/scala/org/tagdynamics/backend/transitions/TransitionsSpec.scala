@@ -37,10 +37,10 @@ class TransitionsSpec extends WordSpec with Matchers {
       val d2 = DayStamp.from("170104")
 
       val statsMap = Map[ElementState, TagStats](
-        es1 -> TagStats(total = TotalCount(counts = 111, rank = 9), live = None, firstEntry = d1, lastEntry = d2),
-        es2 -> TagStats(total = TotalCount(counts = 112, rank = 8), live = None, firstEntry = d1, lastEntry = d2),
-        del -> TagStats(total = TotalCount(counts = 113, rank = 7), live = None, firstEntry = d1, lastEntry = d2),
-        nc -> TagStats(total = TotalCount(counts = 114, rank = 6), live = None, firstEntry = d1, lastEntry = d2)
+        es1 -> TagStats(total = TotalCount(counts = 111, rank = 9), live = None, firstEdit = d1, lastEdit = d2),
+        es2 -> TagStats(total = TotalCount(counts = 112, rank = 8), live = None, firstEdit = d1, lastEdit = d2),
+        del -> TagStats(total = TotalCount(counts = 113, rank = 7), live = None, firstEdit = d1, lastEdit = d2),
+        nc -> TagStats(total = TotalCount(counts = 114, rank = 6), live = None, firstEdit = d1, lastEdit = d2)
       )
 
       val result: Map[ElementState, Seq[ToFromStats]] = TransitionLoader.process(data, statsMap)

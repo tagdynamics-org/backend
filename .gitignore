@@ -4,3 +4,7 @@ target/
 build/
 .gradle/
 gradle
+backend/out
+gradlew
+gradlew.bat
+*~

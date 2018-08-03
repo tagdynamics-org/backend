@@ -9,6 +9,8 @@ object SortHelper {
     case object LiveCounts extends Alternatives // same as LiveRank (but in reverse order)
     case object TotalCounts extends Alternatives // same as TotalRank (but in reverse order)
     case object LivePercent extends Alternatives
+    case object FirstEdit extends Alternatives
+    case object LastEdit extends Alternatives
   }
 
   case object SortOrder {
@@ -23,7 +25,9 @@ object SortHelper {
     sortBy <- Seq(
       SortBy.LiveCounts,
       SortBy.TotalCounts,
-      SortBy.LivePercent)
+      SortBy.LivePercent,
+      SortBy.FirstEdit,
+      SortBy.LastEdit)
     sortOrder <- Seq(
       SortOrder.Ascending,
       SortOrder.Descending)
@@ -38,6 +42,8 @@ object SortHelper {
         case "LiveCounts" => Some(SortBy.LiveCounts)
         case "TotalCounts" => Some(SortBy.TotalCounts)
         case "LivePercent" => Some(SortBy.LivePercent)
+        case "FirstEdit" => Some(SortBy.FirstEdit)
+        case "LastEdit" => Some(SortBy.LastEdit)
         case _ => None
       }
       val sortOrderO = split(1) match {
@@ -70,6 +76,8 @@ object SortHelper {
         case SortBy.LivePercent => t.live.map(x => x.livePercent)
         case SortBy.TotalCounts => Some(t.total.counts)
         case SortBy.LiveCounts => t.live.map(x => x.counts)
+        case SortBy.FirstEdit => Some(t.firstEdit.yymmdd)
+        case SortBy.LastEdit => Some(t.lastEdit.yymmdd)
       }
 
     val table: Seq[(ElementState, TagStats, Double)] =
