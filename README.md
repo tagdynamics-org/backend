@@ -1,9 +1,11 @@
 [![Build Status](https://travis-ci.org/tagdynamics-org/backend.svg?branch=master)](https://travis-ci.org/tagdynamics-org/backend)
 
 # backend
-Backend for serving tag analytics
+tagdynamics.org backend for serving OpenStreetMap tag analytics
 
 ## Cloning and running tests
+
+Note: This project requires Java 8.
 
 ```bash
 git clone --recurse-submodules https://github.com/tagdynamics-org/backend.git
