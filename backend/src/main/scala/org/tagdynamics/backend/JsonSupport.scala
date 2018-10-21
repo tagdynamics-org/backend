@@ -4,6 +4,7 @@ import org.tagdynamics.aggregator.common.JSONCustomProtocols
 import org.tagdynamics.backend.revcounts.RevisionCountRegistryActorMessages.ListResponse
 import org.tagdynamics.backend.revcounts.{LiveCount, TagStats, TotalCount}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.tagdynamics.backend.perdaydelta.PerDayDeltaRegistryActorMessages
 import org.tagdynamics.backend.status.StatusResponse
 import org.tagdynamics.backend.transitions.{ToFromStats, TransitionsMessages}
 
@@ -16,4 +17,5 @@ trait JsonSupport extends SprayJsonSupport with JSONCustomProtocols {
   implicit val jx6 = jsonFormat1(StatusResponse)
   implicit val jx7 = jsonFormat4(ToFromStats)
   implicit val jx8 = jsonFormat2(TransitionsMessages.Response)
+  implicit val jx9 = jsonFormat3(PerDayDeltaRegistryActorMessages.Response)
 }

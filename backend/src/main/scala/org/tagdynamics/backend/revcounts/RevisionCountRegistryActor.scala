@@ -21,7 +21,6 @@ import org.tagdynamics.backend.revcounts.SortHelper.SortSpec
 import scala.concurrent.Future
 
 object RevisionCountRegistryActorMessages {
-
   final case class ListRequest(firstIndex: Int,
                                n: Int,
                                sort: SortSpec,
@@ -30,8 +29,6 @@ object RevisionCountRegistryActorMessages {
   final case class ListResponse(entryList: Seq[(ElementState, TagStats)],
                                 totalEntries: Int,
                                 dataSet: SourceMetadata)
-
-  // TODO: Request data for a specific element state
 }
 
 class RevisionCountRegistryActor(tagStats: Seq[(ElementState, TagStats)],

@@ -1,8 +1,5 @@
 package org.tagdynamics.backend.transitions
 
-import java.net.URI
-
-import org.tagdynamics.aggregator.common
 import org.tagdynamics.aggregator.common.{Counted, ElementState, JSONCustomProtocols, Transition}
 import org.tagdynamics.backend.revcounts.TagStats
 
@@ -15,20 +12,6 @@ case class ToFromStats(state: ElementState,
                       )
 
 object TransitionLoader extends JSONCustomProtocols {
-
-  /** Load a JSONL file transitions */
-  def load(filename: URI): Seq[Counted[Transition[ElementState]]] = {
-    import spray.json._
-
-    println(s" Loading transition data from $filename")
-    val result: Seq[Counted[Transition[ElementState]]] =
-      common.Utils.loadJSONL(filename,
-        (line: String) => line.parseJson.convertTo[Counted[Transition[ElementState]]])
-        .sortBy(x => -x.n)
-    println(s"    - Loaded ${result.length} tag counts")
-    result
-  }
-
   def process(xs: Seq[Counted[Transition[ElementState]]],
              statsMap: Map[ElementState, TagStats]): Map[ElementState, Seq[ToFromStats]] = {
 

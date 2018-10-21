@@ -17,11 +17,12 @@ import org.tagdynamics.backend.status.StatusRoute
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import org.tagdynamics.aggregator.common.ElementState
+import org.tagdynamics.backend.perdaydelta.{PerDayDeltaLoader, PerDayDeltaRegistryActor, PerDayDeltaRoute}
 import org.tagdynamics.backend.transitions.{TransitionCountRoutes, TransitionLoader, TransitionRegistryActor}
 
 case class SourceMetadata(downloaded: String, md5: String, selectedTags: Seq[String])
 
-object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
+object Main extends App with RevisionCountRoutes with TransitionCountRoutes with PerDayDeltaRoute {
 
   // set up ActorSystem and other dependencies here
   implicit val system: ActorSystem = ActorSystem("tag-dynamics-backend")
@@ -52,6 +53,13 @@ object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
     transitionRoutes(transitionActor, sourceMetadata.selectedTags)
   }
 
+  // per-day-delta route
+  val deltaRoute: Route = {
+    val deltas = PerDayDeltaLoader.process(data)
+    val deltaActor: ActorRef = system.actorOf(Props(new PerDayDeltaRegistryActor(deltas.toMap, tagStats.toMap, sourceMetadata)), "perdaydeltaActor")
+    perDayDeltaRoute(deltaActor, sourceMetadata.selectedTags)
+  }
+
   // CORS settings, see
   //  - https://github.com/lomigmegard/akka-http-cors
   //  - https://github.com/lomigmegard/akka-http-cors/blob/master/akka-http-cors/src/main/resources/reference.conf
@@ -73,7 +81,7 @@ object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
   }
 
   val routes: Route = cors(corsSettings) {
-    revisionCountRoutes(revCountActor) ~ StatusRoute.route ~ transitionRoutes
+    revisionCountRoutes(revCountActor) ~ StatusRoute.route ~ transitionRoutes ~ deltaRoute
   }
 
   val interface = Utils.getEnvironmentVariable("HTTP_INTERFACE_NAME")

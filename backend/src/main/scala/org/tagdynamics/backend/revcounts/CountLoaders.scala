@@ -1,12 +1,9 @@
 package org.tagdynamics.backend.revcounts
 
-import java.net.URI
-
-import org.tagdynamics.aggregator.common.{DayStamp, DeltasByDay}
+import org.tagdynamics.aggregator.common.DayStamp
 import org.tagdynamics.backend.AggregatedDataSources
 
 // import common so we can reference common.Util without colliding with backend's own Util:s
-import org.tagdynamics.aggregator.common
 import org.tagdynamics.aggregator.common.{Counted, ElementState, JSONCustomProtocols}
 import org.tagdynamics.backend.Utils
 
