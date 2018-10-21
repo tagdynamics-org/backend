@@ -14,9 +14,29 @@ gradle wrapper
 ./gradlew test
 ```
 
-## Running
+## Getting certificate for api.tagdynamics.org
 
-See the [launch.sh](./launch.sh) script.
+The main site tagdynamics.org is hosted using [netlify](https://www.netlify.com). However, we need a separate SSL certificate for the api.tagdynamics.org site.
+
+- Follow [these instructions](https://certbot.eff.org/lets-encrypt/ubuntuxenial-other) and run Let's encrypt `certbot` command on the server connected to `api.tagdynamics.org`. Authenticate with `standalone` mode. Ensure that no other webserver is running on machine (port 80 is free and this port is open for inbound traffic). 
+- This will output various keys and certificates to `/etc/letsencrypt/live/api.tagdynamics.org/`, see the README file in that directory. To create a certificate readable by the backend run
+
+```
+# in ubuntu root
+mkdir certificate
+sudo openssl pkcs12 -export -out certificate/certificate.pfx -inkey /etc/letsencrypt/live/api.tagdynamics.org/privkey.pem -in /etc/letsencrypt/live/api.tagdynamics.org/cert.pem -certfile /etc/letsencrypt/live/api.tagdynamics.org/chain.pem
+sudo chown ubuntu -R certificate
+sudo chgrp ubuntu -R certificate
+```
+
+## Running api on aws instance
+
+```
+tmux
+sudo docker rmi --force api-runner
+sudo docker build -t api-runner .
+bash launch-docker.sh
+```
 
 ## License
 

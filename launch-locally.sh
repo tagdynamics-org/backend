@@ -11,6 +11,9 @@ export CORS_ALLOW_GENERIC_HTTP_REQUESTS=false
 export CORS_ALLOW_CREDENTIALS=false
 
 export HTTP_INTERFACE_NAME=0.0.0.0
-export HTTP_PORT=8765
+export HTTP_PORT=443
+
+export KEYSTORE_PASSWORD=abc
+export KEYSTORE_PATH=`pwd`/certificate.pfx
 
 ./gradlew run

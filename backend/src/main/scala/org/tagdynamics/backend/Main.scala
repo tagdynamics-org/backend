@@ -21,6 +21,35 @@ import org.tagdynamics.backend.transitions.{TransitionCountRoutes, TransitionLoa
 
 case class SourceMetadata(downloaded: String, md5: String, selectedTags: Seq[String])
 
+
+object HTTPS {
+  // From: https://doc.akka.io/docs/akka-http/10.0.6/scala/http/server-side-https-support.html
+  import java.io.InputStream
+  import java.security.{ SecureRandom, KeyStore }
+  import javax.net.ssl.{ SSLContext, TrustManagerFactory, KeyManagerFactory }
+  import akka.http.scaladsl.{ ConnectionContext, HttpsConnectionContext }
+  import java.io.FileInputStream
+
+  println("loading https certificate ...")
+  val password: Array[Char] = Utils.getEnvironmentVariable("KEYSTORE_PASSWORD").toCharArray
+  val ks: KeyStore = KeyStore.getInstance("PKCS12")
+  val keystore: InputStream =  new FileInputStream(Utils.getEnvironmentVariable("KEYSTORE_PATH"));
+  require(keystore != null, "Keystore required!")
+  ks.load(keystore, password)
+
+  val keyManagerFactory: KeyManagerFactory = KeyManagerFactory.getInstance("SunX509")
+  keyManagerFactory.init(ks, password)
+
+  val tmf: TrustManagerFactory = TrustManagerFactory.getInstance("SunX509")
+  tmf.init(ks)
+
+  val sslContext: SSLContext = SSLContext.getInstance("TLS")
+  sslContext.init(keyManagerFactory.getKeyManagers, tmf.getTrustManagers, new SecureRandom)
+
+  val https: HttpsConnectionContext = ConnectionContext.https(sslContext)
+  println("https certificate loaded ...")
+}
+
 object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
 
   // set up ActorSystem and other dependencies here
@@ -37,7 +66,7 @@ object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
   )
   log.info(s"metadata for input OSM data: $sourceMetadata")
   log.info(s"metadata number of extracted tags = ${sourceMetadata.selectedTags.length}")
-
+ 
   // directory with aggregated data
   val dataDir: String = Utils.getEnvironmentVariable("DATA_DIRECTORY")
   log.info(s"Directory with aggregated data $dataDir")
@@ -80,7 +109,9 @@ object Main extends App with RevisionCountRoutes with TransitionCountRoutes {
   val port = Utils.getEnvironmentVariable("HTTP_PORT").toInt
 
   log.info(s"Hosting api on $interface:$port")
-  Http().bindAndHandle(routes, interface, port)
+
+  Http().setDefaultServerHttpContext(HTTPS.https)
+  val http = Http().bindAndHandle(routes, interface, port, connectionContext = HTTPS.https)
 
   Await.result(system.whenTerminated, Duration.Inf)
 }
